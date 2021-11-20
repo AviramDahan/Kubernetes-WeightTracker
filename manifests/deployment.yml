@@ -1,0 +1,23 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: kubapp 
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kubapp
+  template:
+    metadata:
+      labels:
+        app: kubapp 
+    spec:
+      containers:
+        - name: kubapp 
+          image: kubfiles.azurecr.io/kubapp
+          imagePullPolicy: "Always"
+          ports:
+          - containerPort: 8080
+          envFrom:
+          - secretRef:
+             name: secret
