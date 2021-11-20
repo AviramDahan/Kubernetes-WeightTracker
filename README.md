@@ -1,54 +1,65 @@
-# CI_CD - Docker![image](https://user-images.githubusercontent.com/89352211/141610015-3ee2d3f1-3975-4970-b979-b9dcfaafb1dd.png)
+# Kubernetes ![image](https://user-images.githubusercontent.com/89352211/142737603-a00b2530-e159-4d80-9636-b23cc0cb1ec1.png)
 
-In this project, the Weight Tracker app was deployed using Docker.
+In this project we will use Kubernetes to deploy / manage to multiple servers.
 
-Dockerfile contains:
+1. Kubernetes Cluster in Microsoft’s Azure Kubernetes Service (AKS) : For two environments: Staging and Production.
+2. Creating a Container Registry, for storing files.
+3. CI \ CD process using "Azure DevOps Organizations"
+4. The CI process contained: " Build and push an image to container registry "
+5. The CD process contained for each enviroment ( Staging and Production )
+5.1 Create imagePullSecret With secretArguments:
+
+'--from-literal=COOKIE_ENCRYPT_PWD=$(COOKIE_ENCRYPT_PWD) --from-literal=HOST=$(HOST) --from-literal=PORT=$(PORT) --from-literal=NODE_ENV=$(NODE_ENV) --from-literal=HOST_URL=$(HOST_URL) --from-literal=OKTA_CLIENT_ID=$(OKTA_CLIENT_ID) --from-literal=OKTA_CLIENT_SECRET=$(OKTA_CLIENT_SECRET) --from-literal=OKTA_ORG_URL=$(OKTA_ORG_URL)  --from-literal=PGHOST=$(PGHOST) --from-literal=PGUSERNAME=$(PGUSERNAME) --from-literal=PGDATABASE=$(PGDATABASE) --from-literal=PGPASSWORD=$(PGPASSWORD)  --from-literal=PGPORT=$(PGPORT)'
+
+6. Deploy to Kubernetes cluster:
+                $(Pipeline.Workspace)/manifests/deployment.yml
+                $(Pipeline.Workspace)/manifests/service.yml
+                $(Pipeline.Workspace)/manifests/ingress.yml
+                
+7. Kubectl Apply to deployment.yml
+
+
+
+# Running Conditions At Work:
+
+The variables are encrypted in the Library
+
+There Are Two Brunches:
+Main
+Worker
+
+Run Conditions:
+* Worker Can Only Run Staging Provided That Build Has Passed Successfully.
+* Main Can Also Run Staging And Production Provided That Build And Staging Are Successful
+
+
+
+# Dockerfile contains:
 * Create an app folder that contains the app files
 * App installation and dependencies
-* Expose to Port 8080
+* Expose to Port 80
 * CMD: npm run Initdb + Dev
 
+
+# NodeWeightTracker application on AKS meeting the following requirements:
+
+* The NodeWeightTracker app is accessible from the Internet
+* The NodeWeightTracker app is exposed to the Internet at port 80
+* NodeWeightTracker is at least 3 instances to ensure high availability
+* Configuration secrets to store your application configurations
+* Expose your application using the ingress controller
+
+# application lifecycle is automated with a CI/CD process
+![image](https://user-images.githubusercontent.com/89352211/142738974-e66bbc94-3d1f-44ca-a6ab-7a8dbdcb775f.png)
+
 # Project structure
-![image](https://user-images.githubusercontent.com/89352211/141610155-bf94633b-1ee7-40ea-b125-8321ad5dbbce.png)
-![image](https://user-images.githubusercontent.com/89352211/141610161-15d4ae89-f785-4d99-bf06-ff324c4daf93.png)
-![image](https://user-images.githubusercontent.com/89352211/141610165-b2931763-a405-4547-87ed-595f5896f33f.png)
+![image](https://user-images.githubusercontent.com/89352211/142737633-c7e2a8fb-956d-489d-bafa-8886fecfa515.png)
+![image](https://user-images.githubusercontent.com/89352211/142737732-ec01d94f-384e-4405-b6c4-7b2cb4be5b56.png)
 
 
 # Pipelines Structure
-* Triggers: Main / worker
-* Build CI: Build and push an image to container registry
-* Build a Staging/Production CD:
-Receive a set of variables using group variables that are connected to a vault key, at the most secure level.
-2. Stop Current Container
-3. Login to Registry
-4. Download Azure Key Vault secrets
-5. Delete folders, or files matching a pattern "variablesStaging/Production.env"
-6. create a file: "variablesStaging/Production.env" which contains the set of variables secured in: BinariesDirectory.:
 
-               6.1 PGHOST=$(PGHOSTP)
-               6.2 PGUSERNAME=$(PGUSERNAMEP)
-               6.3 PGDATABASE=$(PGDATABASEP)
-               6.4 PGPASSWORD=$(PGPASSWORDP)
-               6.5 PGPORT=$(PGPORTP)
-               6.6 HOST_URL=$(HOSTURLP)
-               6.7  COOKIE_ENCRYPT_PWD=$(COOKIEENCRYPTPWDP)
-               6.8  NODE_ENV=$(NODEENVP)
-               6.9  OKTA_ORG_URL=$(OKTAORGURLP)
-               6.10  OKTA_CLIENT_ID=$(OKTACLIENTIDP)
-               6.11  OKTA_CLIENT_SECRET=$(OKTACLIENTSECRETP)
-               
-8. Run New Container:
-"docker run --restart = always -d --name weekdocker -p 8080: 8080 --env-file $ (Build.BinariesDirectory) /variablesST/PR.env $ (containerRegistry) / $ (imageRepository): $ (tag)"
-
-
-# Terms of the Environments and the project:
-
-* Dockerfile to package the NodeWeightTracker application into an image.
-* Branch policies to force code review and build validation configured for the master/main branch
-* CI/CD pipeline to automate the application lifecycle
-* Images stored on Azure Container Registry (ACR)
- ![image](https://user-images.githubusercontent.com/89352211/141610776-ed6556ae-aa44-4ce3-af20-2ee9d674e929.png)
-
+![image](https://user-images.githubusercontent.com/89352211/142737788-acb7909c-63da-4cf1-9ed0-e71e22a3ad5e.png)
 
 
 # Node.js Weight Tracker
